@@ -9,7 +9,7 @@ import AstalMpris from "gi://AstalMpris"
 import Battery from "gi://AstalBattery"
 import Bluetooth from "gi://AstalBluetooth"
 
-import { createState } from "ags"
+import { createBinding, createState } from "ags"
 import WifiScreen from "./control-center/wifiScreen"
 import { ArrowToggleButton } from "./modules/arrowedButton"
 import BluetoothScreen from "./control-center/bluetoothScreen"
@@ -37,6 +37,10 @@ export default function Bar(gdkmonitor: Gdk.Monitor) {
 	let bluetooth = Bluetooth.Bluetooth.get_default()
 
 	let wifi = network.get_wifi()
+
+	let closeApp=()=>{
+		  exec("swaymsg kill") 
+	}
 
 
 
@@ -105,14 +109,14 @@ export default function Bar(gdkmonitor: Gdk.Monitor) {
 
 				<box spacing={4} visible={applicationState(v => v == "menu")} orientation={Gtk.Orientation.VERTICAL}>
 					<box marginBottom={10} spacing={10}>
-					   <ArrowToggleButton label={wifiName(v=>v)} icon="" activeState={wifiEnabled} state="wifi" stateChanger={setApplicationState} onClicked={toggleWifi}/>
-						<ArrowToggleButton label={(bluetooth.get_is_connected())?'device name':'bluetooth'} icon="" activeState={bluetoothEnabled} state="bluetooth" stateChanger={setApplicationState} onClicked={toggleBluetooth}/>
-						<ToggleButton label="auto tiling" activeState={staleState} icon="" />
+					   <ArrowToggleButton label={wifiName(v=>v)} icon="" activeState={createBinding(wifi,"enabled")} state="wifi" stateChanger={setApplicationState} onClicked={toggleWifi}/>
+						<ArrowToggleButton label={(bluetooth.get_is_connected())?'device name':'bluetooth'} icon="" activeState={createBinding(bluetooth,"is_powered")} state="bluetooth" stateChanger={setApplicationState} onClicked={toggleBluetooth}/>
+						<ToggleButton label="auto tiling" activeState={staleState} icon="" onClicked={closeApp} />
 					</box>
 					<box marginBottom={20} spacing={10}>
 						<ToggleButton label="disable keyboard" activeState={keyboard} onClicked={disableKeyboard} icon="󰹋" />
 						<ToggleButton label="battery saver" activeState={staleState} icon="󰂏" />
-						<ToggleButton label="lock" onClicked={()=>{}} icon="" activeState={staleState} />
+						<ToggleButton label="lock" onClicked={()=>{exec("lock.sh")}} icon="" activeState={staleState} />
 					</box>
 					<box class={"slider-container"}>
 						<label class="slider-label" label={"󰖨"} />
@@ -124,7 +128,7 @@ export default function Bar(gdkmonitor: Gdk.Monitor) {
 					</box>
 
 					<box class="info-section">
-						<label label={percentage((v) => '  ' + (v * 100).toString() + '%')} />
+						<label label={percentage((v) => '  ' + (Math.floor(v * 100)).toString() + '%')} />
 						<label label={''} hexpand />
 						<label label={"settings"} />
 					</box>

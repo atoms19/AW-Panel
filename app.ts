@@ -5,7 +5,7 @@ import Wifi from "./widget/Wifi"
 app.start({
   css: style,
   main() {
-   // app.get_monitors().map(Bar),
+    //app.get_monitors().map(Bar),
 	 Wifi(app.get_monitors()[0])
   },
 })

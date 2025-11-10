@@ -3,7 +3,7 @@ import { exec, execAsync } from "ags/process"
 import { createPoll, interval } from "ags/time"
 import { ToggleButton } from "./modules/toggleButton"
 import Bluetooth from "gi://AstalBluetooth"
-import { createState, For, onMount, With } from "ags"
+import { createBinding, createState, For, onMount, With } from "ags"
 
 
 export default function BluetoothScreen({state,setState}:{state:any,setState:any}) {
@@ -25,8 +25,6 @@ export default function BluetoothScreen({state,setState}:{state:any,setState:any
 	 setCurrentDevice('')
 
 
-	
-
 
 	return (
 		<box visible={state(v=>v=="bluetooth")} orientation={Gtk.Orientation.VERTICAL} class="control-center-screen" hexpand vexpand>
@@ -44,9 +42,9 @@ export default function BluetoothScreen({state,setState}:{state:any,setState:any
 						<label label={device.name} marginEnd={100} />
 						<label label={""} hexpand />
 						<With value={currentDevice}>{(current)=>(
-						  <box>
-						  <label label={ '  ' +device.get_battery_percentage()*100+'%'} />
-						<button class={"normal-button "+((device.name!=current)?'active':'')} onClicked={()=>{
+						  <box> 
+						  <label label={createBinding(device,"battery_percentage")(p=> p !=-1 ?'  '+p*100+'%': '' )} />
+						<button  cssClasses={currentDevice(c=>c!=device.name?["normal-button","active"]:["normal-button"])} onClicked={()=>{
 			 				  if(device.name!=current){
 								device.connect_device(()=>{
 								  setCurrentDevice(device.name)
